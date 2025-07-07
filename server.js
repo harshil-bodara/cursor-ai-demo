@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 require('dotenv').config({ path: './config.env' });
 
 const connectDB = require('./config/database');
@@ -11,19 +12,30 @@ const PORT = process.env.PORT || 3000;
 // Connect to MongoDB
 connectDB();
 
+// Set EJS as view engine
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
 // Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Routes
 app.use('/api/todos', todoRoutes);
+
+// Social Media Post Design Route
+app.get('/posts', (req, res) => {
+  res.render('index');
+});
 
 // Health check route
 app.get('/', (req, res) => {
   res.json({
     message: 'TODO API is running',
-    endpoints: {
+    routes: {
+      'GET /posts': 'View social media post design',
       'GET /api/todos': 'Get all todos',
       'GET /api/todos/:id': 'Get single todo',
       'POST /api/todos': 'Create new todo',
@@ -54,4 +66,5 @@ app.use('*', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`API Documentation: http://localhost:${PORT}`);
+  console.log(`Social Media Posts: http://localhost:${PORT}/posts`);
 }); 
